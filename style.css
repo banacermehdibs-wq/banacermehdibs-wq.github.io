@@ -96,34 +96,36 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
   position: relative;
   overflow: hidden;
   background: var(--bg);
+  aspect-ratio: 4 / 3;   /* cell shape */
 }
 
-.cell--wide  { grid-column: span 2; }
-.cell--tall  { grid-row: span 2; }
+.cell--wide  { grid-column: span 2; aspect-ratio: 16 / 9; }
+.cell--tall  { grid-row: span 2; aspect-ratio: 3 / 4; }
 
 .cell-link {
   display: block;
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
 }
 
 /* ---- image wrapper ---- */
 .cell-img {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  /* default aspect ratio — tall cells get natural height from row span */
-  aspect-ratio: 4 / 3;
+  height: 100%;
   overflow: hidden;
   background: #d8d5ce;
 }
 
-.cell--wide  .cell-img { aspect-ratio: 16 / 9; }
-.cell--tall  .cell-img { aspect-ratio: unset; height: 100%; min-height: 520px; }
-
 .cell-img img {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;     /* zoom + crop to fill cell, no grey gap */
   transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
@@ -343,15 +345,17 @@ footer {
 ============================================= */
 @media (max-width: 900px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
-  .cell--wide { grid-column: span 2; }
-  .cell--tall { grid-row: span 1; }
-  .cell--tall .cell-img { aspect-ratio: 4/3; min-height: unset; height: auto; }
+  .cell--wide { grid-column: span 2; aspect-ratio: 16 / 7; }
+  .cell--tall { grid-row: span 2; aspect-ratio: 3 / 4; }
 }
 
 @media (max-width: 600px) {
   .grid { grid-template-columns: 1fr; gap: 2px; }
-  .cell--wide { grid-column: span 1; }
-  .cell--wide .cell-img { aspect-ratio: 4/3; }
+  .cell, .cell--wide, .cell--tall {
+    grid-column: span 1;
+    grid-row: span 1;
+    aspect-ratio: 4 / 3;
+  }
 
   .cell-info { opacity: 1; }  /* always visible on mobile */
 
@@ -491,30 +495,81 @@ footer {
   margin: 2rem 0 1rem;
 }
 
-.proj-gallery {
+/* =============================================
+   PROJECT SLIDER (auto-advancing)
+============================================= */
+.proj-slider {
+  position: relative;
   max-width: 1200px;
   margin: 64px auto 0;
   padding: 0 24px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3px;
+  overflow: hidden;
 }
 
-.proj-gallery img {
-  width: 100%;
-  height: 100%;
+.proj-slides {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.proj-slide {
+  flex: 0 0 100%;
+  aspect-ratio: 16 / 9;
   background: #d8d5ce;
 }
 
-/* big image on top, spanning both columns */
-.proj-gallery .full {
-  grid-column: 1 / -1;
-  aspect-ratio: 16/9;
+.proj-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* the two below sit side by side */
-.proj-gallery .half {
-  aspect-ratio: 4/3;
+.proj-slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: rgba(17,17,16,0.55);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.proj-slider-btn:hover { background: rgba(17,17,16,0.85); }
+.proj-slider-btn.prev { left: 36px; }
+.proj-slider-btn.next { right: 36px; }
+
+.proj-slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.proj-slider-dots button {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: var(--line);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+}
+
+.proj-slider-dots button.active { background: var(--ink); }
+
+@media (max-width: 600px) {
+  .proj-slider-btn { width: 36px; height: 36px; }
+  .proj-slider-btn.prev { left: 28px; }
+  .proj-slider-btn.next { right: 28px; }
 }
 
 .proj-nav {
